@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+  
+  <arg name="laser_enabled" default="true"/>
+  
+  <include file="$(find smb_gazebo)/launch/smb_gazebo.launch">
+    <arg name="world_file" value="$(find smb_highlevel_controller)/worlds/singlePillar.world"/>
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="laser_scan_min_height" value="-0.2"/>
+    <arg name="laser_scan_max_height" value="1.0"/>
+  </include>
+  
+  <!-- Launch SMB Highlevel Controller Node -->
+  <node pkg="smb_highlevel_controller" type="smb_highlevel_controller" name="smb_highlevel_controller" output="screen" launch-prefix="gnome-terminal --command">
+    <rosparam command="load" file="$(dirname)/../config/default.yaml" />
+  </node>
+
+
+</launch>

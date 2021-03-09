@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+ 
+ 
+  <!-- Load robot description -->
+  <arg name="robot_namespace" 	default=""/>
+  <arg name="enable_ekf" 		default="true"/>
+  <arg name="robot_description" 	default="robot_description"/>
+  <arg name="description_file" 	default="$(find smb_description)/urdf/smb_standalone.urdf.xacro"/>
+  
+  <include file="$(find smb_description)/launch/load.launch">
+    <arg name="simulation"       	value="false"/>
+    <arg name="description_name" 	value="$(arg robot_description)"/>
+    <arg name="description_file" 	value="$(arg description_file)"/>
+    <arg name="wheel_joint_type" 	value="continuous"/>
+    <arg name="robot_namespace"  	value="$(arg robot_namespace)"/>
+  </include>
+  
+  
+  <!-- Static tf publisher -->
+  <node pkg="tf" type="static_transform_publisher" name="smb_top_view" args="0 0 2 0 0 0 base_link smb_top_view 100" />
+  
+  <!-- State publisher -->
+  <node name="smb_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
+    <param name="publish_frequency" value="50"/>
+    <param name="use_tf_static"     value="true"/>
+    <remap from="robot_description" to="$(arg robot_description)"/>
+  </node>
+  
+  
+  <!-- Rosbag play -->
+  <param name="use_sim_time" 	value="true"/>
+  <arg name="bag_file" 	default="smb_navigation"/>
+  <arg name="bag_path" 	default="$(find smb_highlevel_controller)/bags/"/>
+  <node pkg="rosbag" type="play" name="smb_navigation" output="screen" args="--clock --rate=0.5 $(arg bag_path)$(arg bag_file).bag" />
+  
+  
+  <!-- Start ekf localization node -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+    <rosparam command="load" file="$(find smb_control)/config/localization.yaml" />
+  </node>
+  
+  
+  <!-- Launch RViz -->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find smb_highlevel_controller)/rviz/config_file.rviz" />
+  
+  <!-- Path plotting -->
+  <node type="rqt_multiplot" name="rqt_multiplot" pkg="rqt_multiplot" args="--multiplot-run-all" />
+
+</launch>

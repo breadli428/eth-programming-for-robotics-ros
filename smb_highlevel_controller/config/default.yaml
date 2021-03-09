@@ -1,0 +1,7 @@
+subscriber_topic_scan: /scan
+subscriber_topic_rslidar_points: /rslidar_points
+publisher_topic_cmd_vel: /cmd_vel
+publisher_topic_visualization_marker: /visualization_marker
+queue_size: 10
+angular_gain: 1.0
+service_start_stop: /start_stop
